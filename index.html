@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BMS Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <header class="topbar">
+    <div class="logo">
+      <span class="logo-icon">⚡</span>
+      <span class="logo-text">BMS<span class="accent">CORE</span></span>
+    </div>
+    <div class="status-bar">
+      <span class="dot live"></span>
+      <span class="status-label">LIVE</span>
+      <span class="timestamp" id="timestamp">--:--:--</span>
+    </div>
+  </header>
+
+  <main class="dashboard">
+
+    <!-- Battery SOC -->
+    <div class="card card--soc" data-index="0">
+      <div class="card-label">STATE OF CHARGE</div>
+      <div class="arc-container">
+        <svg class="arc-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#00dca0"/>
+              <stop offset="100%" stop-color="#00aaff"/>
+            </linearGradient>
+          </defs>
+          <path class="arc-track" d="M 20 110 A 90 90 0 0 1 180 110" />
+          <path class="arc-fill" id="arc-fill" d="M 20 110 A 90 90 0 0 1 180 110" stroke-dasharray="0 283" />
+        </svg>
+        <div class="arc-value">
+          <span id="soc">--</span>
+          <span class="unit">%</span>
+        </div>
+      </div>
+      <div class="card-sub" id="soc-label">Waiting...</div>
+    </div>
+
+    <!-- Voltage -->
+    <div class="card card--voltage" data-index="1">
+      <div class="card-label">CELL VOLTAGE</div>
+      <div class="meter-wrap">
+        <div class="big-value">
+          <span id="voltage">--</span>
+          <span class="unit">V</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" id="voltage-bar"></div>
+          <div class="bar-segments">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="bar-labels">
+          <span>2.5V</span><span>4.2V</span>
+        </div>
+      </div>
+      <div class="card-sub" id="voltage-label">Nominal</div>
+    </div>
+
+    <!-- Temperature -->
+    <div class="card card--temp" data-index="2">
+      <div class="card-label">CELL TEMPERATURE</div>
+      <div class="therm-wrap">
+        <div class="big-value">
+          <span id="temp">--</span>
+          <span class="unit">°C</span>
+        </div>
+        <div class="temp-ring" id="temp-ring">
+          <div class="therm-icon">🌡</div>
+        </div>
+      </div>
+      <div class="card-sub" id="temp-label">Normal</div>
+    </div>
+
+    <!-- Battery Health -->
+    <div class="card card--health" data-index="3">
+      <div class="card-label">BATTERY HEALTH</div>
+      <div class="health-wrap">
+        <div class="big-value">
+          <span id="health-value">--%</span>
+        </div>
+        <div class="health-track">
+          <div class="health-bar-fill" id="health-bar"></div>
+          <div class="health-segments">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="health-ticks">
+          <span>Poor</span><span>Fair</span><span>Good</span>
+        </div>
+      </div>
+      <div class="card-sub" id="health-label">Calculating...</div>
+    </div>
+
+    <!-- Charger Status -->
+    <div class="card card--charger" data-index="4">
+      <div class="card-label">CHARGER STATUS</div>
+      <div class="charger-wrap">
+
+        <div class="charger-icon-wrap disconnected" id="charger-icon-wrap">
+          <svg class="plug-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="28" width="24" height="20" rx="5" stroke="currentColor" stroke-width="2.5"/>
+            <line x1="26" y1="28" x2="26" y2="16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="38" y1="28" x2="38" y2="16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="32" y1="48" x2="32" y2="57" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <path class="plug-bolt" d="M35 31L28 41H33L28 49"
+              stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="ripple r1"></span>
+          <span class="ripple r2"></span>
+        </div>
+
+        <div class="charger-info">
+          <div class="charger-state off" id="charger-state">Detecting...</div>
+          <div class="charger-detail" id="charger-detail">Waiting for data</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Alert strip -->
+    <div class="alert-strip" id="alert-strip">
+      <span class="alert-icon">ℹ</span>
+      <span id="alert-msg">All systems nominal — monitoring in real time.</span>
+    </div>
+
+  </main>
+
+  <script src="firebase-config.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+</html>

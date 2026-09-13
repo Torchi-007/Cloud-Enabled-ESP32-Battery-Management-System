@@ -1,0 +1,394 @@
+/* ─── Reset & Base ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #06090f;
+  --surface: #0d1117;
+  --surface2: #131922;
+  --border: rgba(0,220,180,0.12);
+  --accent: #00dca0;
+  --accent2: #00aaff;
+  --accent3: #ff6b35;
+  --warn: #ffc107;
+  --danger: #ff3b5c;
+  --text: #e8f0f8;
+  --muted: #4a5a72;
+  --font-display: 'Orbitron', monospace;
+  --font-mono: 'DM Mono', monospace;
+  --radius: 20px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── Background Effects ────────────────────────────────── */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,220,160,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,220,160,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.bg-glow {
+  position: fixed; top: -200px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse at center, rgba(0,220,160,0.08) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ─── Topbar ────────────────────────────────────────────── */
+.topbar {
+  position: relative; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(6,9,15,0.85);
+  backdrop-filter: blur(12px);
+}
+
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-display);
+  font-size: 1.3rem; font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.logo-icon { font-size: 1.5rem; filter: drop-shadow(0 0 8px var(--accent)); }
+.accent { color: var(--accent); }
+
+.status-bar {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.72rem; letter-spacing: 0.15em; color: var(--muted);
+}
+
+.dot.live {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity: 1; box-shadow: 0 0 8px var(--accent); }
+  50%      { opacity: 0.4; box-shadow: 0 0 3px var(--accent); }
+}
+
+.status-label { color: var(--accent); font-weight: 500; }
+.timestamp    { color: var(--muted); }
+
+/* ─── Dashboard Layout ──────────────────────────────────── */
+.dashboard {
+  position: relative; z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ─── Cards ─────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 28px 22px;
+  position: relative; overflow: hidden;
+  opacity: 0; transform: translateY(24px);
+  animation: cardIn 0.6s ease forwards;
+  transition: border-color 0.4s, box-shadow 0.4s;
+}
+
+.card[data-index="0"] { animation-delay: 0.10s; }
+.card[data-index="1"] { animation-delay: 0.22s; }
+.card[data-index="2"] { animation-delay: 0.34s; }
+.card[data-index="3"] { animation-delay: 0.46s; }
+
+@keyframes cardIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.card--soc::before    { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.card--voltage::before{ background: linear-gradient(90deg, var(--accent2), #7b61ff); }
+.card--temp::before   { background: linear-gradient(90deg, var(--warn), var(--accent3)); }
+.card--health::before { background: linear-gradient(90deg, #7b61ff, var(--accent)); }
+
+.card-label {
+  font-family: var(--font-display);
+  font-size: 0.62rem; letter-spacing: 0.2em;
+  color: var(--muted); margin-bottom: 18px;
+}
+
+/* ─── card-sub + charge states ──────────────────────────── */
+.card-sub {
+  font-size: 0.72rem; letter-spacing: 0.12em;
+  color: var(--accent); margin-top: 12px;
+  text-transform: uppercase; transition: color 0.3s;
+}
+
+/* Shown when ESP32 sends charging=true */
+.card-sub.charging {
+  color: var(--accent2);
+  animation: chargePulse 1.4s ease-in-out infinite;
+}
+
+@keyframes chargePulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+
+/* Shown when ESP32 sends charging=false */
+.card-sub.discharging { color: var(--warn); }
+
+/* Idle / stable */
+.card-sub.idle { color: var(--muted); letter-spacing: 0.12em; }
+
+/* Health colours */
+.card-sub.health-good { color: var(--accent); }
+.card-sub.health-fair { color: var(--warn); }
+.card-sub.health-poor { color: var(--danger); }
+
+/* ─── Big Value ─────────────────────────────────────────── */
+.big-value {
+  display: flex; align-items: baseline; gap: 4px;
+  font-family: var(--font-display);
+  font-size: 3.2rem; font-weight: 800; line-height: 1;
+  color: var(--text);
+  text-shadow: 0 0 20px rgba(0,220,160,0.3);
+}
+
+.unit {
+  font-family: var(--font-display);
+  font-size: 1.2rem; font-weight: 400; color: var(--muted);
+}
+
+/* ─── SOC Arc ────────────────────────────────────────────── */
+.arc-container {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.arc-svg { width: 100%; max-width: 220px; display: block; margin: 0 auto; }
+
+.arc-track {
+  fill: none; stroke: var(--surface2);
+  stroke-width: 10; stroke-linecap: round;
+}
+
+.arc-fill {
+  fill: none; stroke: url(#arcGradient);
+  stroke-width: 10; stroke-linecap: round;
+  transition: stroke-dasharray 1s cubic-bezier(.4,0,.2,1);
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+
+.arc-value {
+  position: absolute; bottom: 12px;
+  display: flex; align-items: baseline; gap: 3px;
+  font-family: var(--font-display);
+  font-size: 2.6rem; font-weight: 800;
+  color: var(--text);
+  text-shadow: 0 0 20px rgba(0,220,160,0.4);
+}
+
+/* ─── Voltage Bar ────────────────────────────────────────── */
+.meter-wrap { margin-top: 10px; }
+
+.bar-track {
+  position: relative; height: 10px;
+  background: var(--surface2); border-radius: 6px;
+  margin-top: 16px; overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%; border-radius: 6px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  width: 0%;
+  transition: width 1s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 0 10px var(--accent2);
+}
+
+.bar-segments { position: absolute; inset: 0; display: flex; }
+.bar-segments span { flex: 1; border-right: 1px solid rgba(0,0,0,0.3); }
+.bar-segments span:last-child { border-right: none; }
+
+.bar-labels {
+  display: flex; justify-content: space-between;
+  font-size: 0.65rem; color: var(--muted);
+  margin-top: 5px; letter-spacing: 0.05em;
+}
+
+/* ─── Temperature Ring ──────────────────────────────────── */
+.therm-wrap { display: flex; align-items: center; gap: 20px; margin-top: 10px; }
+
+.temp-ring {
+  width: 64px; height: 64px; border-radius: 50%;
+  border: 3px solid var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  transition: border-color 0.5s, box-shadow 0.5s;
+  flex-shrink: 0;
+}
+
+.temp-ring.cool   { border-color: var(--accent2); box-shadow: 0 0 16px rgba(0,170,255,0.3); }
+.temp-ring.normal { border-color: var(--accent);  box-shadow: 0 0 16px rgba(0,220,160,0.3); }
+.temp-ring.warm   { border-color: var(--warn);    box-shadow: 0 0 16px rgba(255,193,7,0.35); }
+.temp-ring.hot    { border-color: var(--danger);  box-shadow: 0 0 16px rgba(255,59,92,0.4);
+                    animation: hotPulse 0.8s ease-in-out infinite; }
+
+@keyframes hotPulse {
+  0%,100% { box-shadow: 0 0 16px rgba(255,59,92,0.4); }
+  50%      { box-shadow: 0 0 28px rgba(255,59,92,0.7); }
+}
+
+/* ─── Battery Health Card ───────────────────────────────── */
+.health-wrap { margin-top: 10px; }
+
+.health-track {
+  position: relative; height: 10px;
+  background: var(--surface2); border-radius: 6px;
+  margin-top: 16px; overflow: hidden;
+}
+
+.health-bar-fill {
+  height: 100%; border-radius: 6px;
+  width: 0%;
+  transition: width 1.2s cubic-bezier(.4,0,.2,1), background 0.5s;
+}
+
+.health-bar-fill.good { background: linear-gradient(90deg, #00dca0, #00aaff); box-shadow: 0 0 10px rgba(0,220,160,0.4); }
+.health-bar-fill.fair { background: linear-gradient(90deg, #ffc107, #ff6b35); box-shadow: 0 0 10px rgba(255,193,7,0.3); }
+.health-bar-fill.poor { background: linear-gradient(90deg, #ff3b5c, #ff6b35); box-shadow: 0 0 10px rgba(255,59,92,0.35); }
+
+.health-segments { position: absolute; inset: 0; display: flex; }
+.health-segments span { flex: 1; border-right: 1px solid rgba(0,0,0,0.3); }
+.health-segments span:last-child { border-right: none; }
+
+.health-ticks {
+  display: flex; justify-content: space-between;
+  font-size: 0.62rem; color: var(--muted);
+  margin-top: 5px; letter-spacing: 0.05em;
+}
+
+/* ─── Alert Strip ───────────────────────────────────────── */
+.alert-strip {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 22px;
+  font-size: 0.78rem; letter-spacing: 0.05em;
+  color: var(--muted);
+  opacity: 0; animation: cardIn 0.6s 0.56s ease forwards;
+  transition: border-color 0.4s, color 0.4s;
+}
+
+.alert-strip.warn {
+  border-color: rgba(255,193,7,0.3);
+  color: var(--warn);
+}
+
+.alert-strip.danger {
+  border-color: rgba(255,59,92,0.35);
+  color: var(--danger);
+  animation: none; opacity: 1;
+  /* Low-battery / critical pulse */
+  box-shadow: 0 0 0 0 rgba(255,59,92,0.4);
+  animation: dangerPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes dangerPulse {
+  0%,100% { box-shadow: 0 0 0 0   rgba(255,59,92,0); }
+  50%      { box-shadow: 0 0 12px 2px rgba(255,59,92,0.25); }
+}
+
+.alert-icon { font-size: 1rem; }
+
+/* ─── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 10px; }
+
+/* ─── Charger Card ───────────────────────────────────────── */
+.card--charger::before { background: linear-gradient(90deg, #00aaff, #00dca0); }
+
+.charger-wrap {
+  display: flex; align-items: center; gap: 22px;
+  margin-top: 8px;
+}
+
+/* Icon circle */
+.charger-icon-wrap {
+  position: relative;
+  width: 72px; height: 72px; flex-shrink: 0;
+  border-radius: 50%;
+  border: 2.5px solid var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.4s, color 0.4s, box-shadow 0.4s;
+  color: var(--muted);
+}
+
+.plug-svg { width: 40px; height: 40px; }
+
+/* Bolt hidden by default */
+.plug-bolt { opacity: 0; transition: opacity 0.3s; }
+
+/* ── Connected state ── */
+.charger-icon-wrap.connected {
+  border-color: var(--accent2);
+  color: var(--accent2);
+  box-shadow: 0 0 18px rgba(0,170,255,0.35);
+}
+.charger-icon-wrap.connected .plug-bolt { opacity: 1; }
+
+/* Ripple rings — only animate when connected */
+.ripple {
+  position: absolute; border-radius: 50%;
+  border: 1.5px solid var(--accent2);
+  opacity: 0; pointer-events: none;
+}
+.charger-icon-wrap.connected .ripple { animation: rippleOut 1.8s ease-out infinite; }
+.r1 { width: 88px;  height: 88px;  animation-delay: 0s !important; }
+.r2 { width: 108px; height: 108px; animation-delay: 0.7s !important; }
+
+@keyframes rippleOut {
+  0%   { transform: scale(0.85); opacity: 0.6; }
+  100% { transform: scale(1.1);  opacity: 0; }
+}
+
+/* ── Disconnected state ── */
+.charger-icon-wrap.disconnected {
+  border-color: var(--muted);
+  color: var(--muted);
+  box-shadow: none;
+}
+
+/* Text info */
+.charger-info { display: flex; flex-direction: column; gap: 6px; }
+
+.charger-state {
+  font-family: var(--font-display);
+  font-size: 1rem; font-weight: 600;
+  letter-spacing: 0.06em;
+  transition: color 0.4s;
+}
+.charger-state.on  { color: var(--accent2); animation: chargePulse 1.4s ease-in-out infinite; }
+.charger-state.off { color: var(--muted); animation: none; }
+
+.charger-detail {
+  font-size: 0.72rem; color: var(--muted);
+  letter-spacing: 0.05em; line-height: 1.5;
+}

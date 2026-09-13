@@ -1,0 +1,6 @@
+.env
+firebase-config.js
+
+# Local/editor and build artifacts
+.vscode/
+a.exe
